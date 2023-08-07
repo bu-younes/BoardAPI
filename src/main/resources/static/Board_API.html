@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Board API</title>
+<style>
+  /* Your existing styles for the navigation bar */
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #333;
+    color: #fff;
+  }
+
+  /* Your existing styles for the text box and button */
+  .update-form {
+    display: flex;
+    align-items: center;
+  }
+
+  .update-input {
+    margin-right: 10px;
+    padding: 5px;
+  }
+
+  .update-button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* Basic styling for the Kanban board */
+  .kanban-board {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #f0f0f0;
+  }
+
+  .kanban-column {
+    flex: 1;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 0 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .kanban-task {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .kanban-task-id {
+    font-weight: bold;
+    color: #888;
+    margin-bottom: 5px;
+  }
+    /* Styling for the dropdown list */
+    .input-dropdown {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    margin-bottom: 5px;
+  }
+
+/* Your custom styles for the control panel */
+.control-panel {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Your custom styles for the cards */
+.cards {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  
+}
+
+  /* Additional styling for the input elements and button */
+  .input-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  .input-label {
+    margin-bottom: 5px;
+  }
+
+  .input-box {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    margin-bottom: 5px;
+  }
+
+  .create-button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="navbar-title" id="title">Title: Sprint Board 2023</div>
+    <div class="update-form">
+      <input class="update-input" type="text" id="newTitle" placeholder="Enter a new title here">
+      <button class="update-button" onclick="updateBoardName()">Update title</button>
+    </div>
+  </div>
+<div class="kanban-board">
+  <div class="kanban-column todo" id="1">
+    <h2  id="1">To Do</h2>
+    <div ></div>
+  </div>
+  <div class="kanban-column in-progress">
+    <h2>In Progress</h2>
+    <div  id="2"></div>
+  </div>
+  <div class="kanban-column done">
+    <h2>Done</h2>
+    <div  id="3"></div>
+  </div>
+</div>
+
+<div class="control-panel">
+  <h2>Control Panel</h2>
+  <!-- Add your control panel content here -->
+</div>
+
+<div class="control-cards">
+        <h2>Cards</h2>
+            <!-- Add your control cardscontent here -->
+    <div class="cards">
+<!--create card-->
+      <div class="control-panel">
+        <div class="input-container">
+          <label class="input-label">Enter Title:</label>
+          <input class="input-box" type="text" id="cardTitle" placeholder="Enter title">
+        </div>
+        <div class="input-container">
+          <label class="input-label">Enter Description:</label>
+          <input class="input-box" type="text" id="cardDescription" placeholder="Enter description">
+        </div>
+          <div class="input-container">
+            <label class="input-label">Select Section:</label>
+            <select class="input-dropdown" id="cardSection">
+              <option value="1">To Do</option>
+              <option value="2">In Progress</option>
+              <option value="3">Done</option>
+            </select>
+          </div>
+          <button class="create-button" onclick="createCard()">Create</button>
+          </div>
+<!--delete card-->
+          <div class="control-panel">
+          <div class="input-container">
+          <label class="input-label">Select an Existing Card:</label>
+          <select class="input-dropdown" id="existingCard">
+            <!-- JavaScript will populate this dropdown -->
+          </select>
+        </div>
+        <button class="create-button" onclick="deleteSelectedCard()">Delete</button>
+      </div> 
+<!--update card-->
+
+        <div class="control-panel">
+          <div class="input-container">
+            <label class="input-label">Enter Title:</label>
+            <input class="input-box" type="text" id="newControlTitle" placeholder="Enter new title">
+          </div>
+          <div class="input-container">
+            <label class="input-label">Enter Description:</label>
+            <input class="input-box" type="text" id="newControlDescription" placeholder="Enter new description">
+          </div>
+          <div class="input-container">
+            <label class="input-label">Select an Existing Card:</label>
+            <select class="input-dropdown" id="existingCardToUpdate">
+              <!-- JavaScript will populate this dropdown -->
+            </select>
+          </div>
+          <button class="create-button" onclick="updateSelectedCard()">Update</button>
+      </div> 
+
+  </div>
+  <script src="BoardAPI.js"></script>
+
+</body>
+</html>
