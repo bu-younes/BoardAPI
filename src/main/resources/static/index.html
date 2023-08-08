@@ -136,18 +136,22 @@
     </div>
   </div>
 <div class="kanban-board">
-  <div class="kanban-column todo" id="1">
-    <h2  id="1">To Do</h2>
-    <div ></div>
+  <div class="kanban-column section-1" id="todo">
+    <h2>To Do</h2>
+    <div class="kanban-card-container"></div> <!-- Add this line -->
+
   </div>
-  <div class="kanban-column in-progress">
+  <div class="kanban-column section-2" id="in-progress">
     <h2>In Progress</h2>
-    <div  id="2"></div>
+    <div class="kanban-card-container"></div> <!-- Add this line -->
+
   </div>
-  <div class="kanban-column done">
+  <div class="kanban-column section-3" id="done">
     <h2>Done</h2>
-    <div  id="3"></div>
+    <div class="kanban-card-container"></div> <!-- Add this line -->
+
   </div>
+  
 </div>
 
 <div class="control-panel">
@@ -159,7 +163,7 @@
         <h2>Cards</h2>
             <!-- Add your control cardscontent here -->
     <div class="cards">
-<!--create card-->
+
       <div class="control-panel">
         <div class="input-container">
           <label class="input-label">Enter Title:</label>
@@ -172,14 +176,14 @@
           <div class="input-container">
             <label class="input-label">Select Section:</label>
             <select class="input-dropdown" id="cardSection">
-              <option value="1">To Do</option>
-              <option value="2">In Progress</option>
-              <option value="3">Done</option>
+              <option id="1" value="1">To Do</option>
+              <option id="2" value="2">In Progress</option>
+              <option id="3" value="3">Done</option>
             </select>
           </div>
           <button class="create-button" onclick="createCard()">Create</button>
           </div>
-<!--delete card-->
+
           <div class="control-panel">
           <div class="input-container">
           <label class="input-label">Select an Existing Card:</label>
@@ -189,7 +193,7 @@
         </div>
         <button class="create-button" onclick="deleteSelectedCard()">Delete</button>
       </div> 
-<!--update card-->
+
 
         <div class="control-panel">
           <div class="input-container">
