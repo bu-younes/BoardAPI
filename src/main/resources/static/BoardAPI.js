@@ -245,6 +245,7 @@ function deleteSelectedCard() {
 // Populate card dropdown with existing cards
 function populateCardDropdown(cards) {
   const existingCardDropdown = document.getElementById('existingCard');
+  const existingCardToUpdateDropdown = document.getElementById('existingCardToUpdate');
   existingCardDropdown.innerHTML = '';
 
   for (const cardId in cardElements) {
@@ -252,6 +253,7 @@ function populateCardDropdown(cards) {
     option.value = cardId;
     option.textContent = `card-${cardId}`;
     existingCardDropdown.appendChild(option);
+    existingCardToUpdateDropdown.appendChild(option);
   }
 
   // If cards parameter is provided, populate the dropdown with card IDs
