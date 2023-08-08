@@ -123,8 +123,6 @@ let cardIdCounter = 1;
 let boardId = 1;
 
 function createCard() {
-  console.log("In create card");
-
   const cardTitle = document.getElementById('cardTitle').value;
   const cardDescription = document.getElementById('cardDescription').value;
   const cardSection = document.getElementById('cardSection').value;
@@ -159,8 +157,11 @@ function createCard() {
       card.classList.add('kanban-task');
       card.setAttribute('draggable', 'true');
       card.innerHTML = `
-        <div class="kanban-task-id">${createdCard.card_id}</div>
-        <div class="kanban-task-title">${createdCard.title}</div>
+        <div class="kanban-task-id">card-${createdCard.card_id}</div>
+        <div class="kanban-task-title">
+          <p>Title:</p>
+          <p>${createdCard.title}</p>
+        </div>
         <div class="kanban-task-description">
           <p>Description:</p>
           <p>${createdCard.description}</p>
@@ -185,21 +186,21 @@ function createCard() {
       const existingCardDropdown = document.getElementById('existingCard');
       const newOption = document.createElement('option');
       newOption.value = createdCard.card_id;
-      newOption.textContent = createdCard.card_id;
+      newOption.textContent = `card-${createdCard.card_id}`;
       existingCardDropdown.appendChild(newOption);
 
-      populateCardDropdown();
+      // Re-enable the button
+      createButton.disabled = false;
     })
     .catch(error => {
       console.error('Error creating card:', error);
-    })
-    .finally(() => {
-      createButton.disabled = false; // Re-enable the button
+      createButton.disabled = false; // Re-enable the button if an error occurs
     });
   } else {
     createButton.disabled = false; // Re-enable the button if validation fails
   }
 }
+
 
 // Delete the selected card
 function deleteSelectedCard() {
@@ -242,15 +243,25 @@ function deleteSelectedCard() {
 
 
 // Populate card dropdown with existing cards
-function populateCardDropdown() {
-  const existingCardDropdown = document.getElementById('existingCardToUpdate');
+function populateCardDropdown(cards) {
+  const existingCardDropdown = document.getElementById('existingCard');
   existingCardDropdown.innerHTML = '';
 
   for (const cardId in cardElements) {
     const option = document.createElement('option');
     option.value = cardId;
-    option.textContent = cardId;
+    option.textContent = `card-${cardId}`;
     existingCardDropdown.appendChild(option);
+  }
+
+  // If cards parameter is provided, populate the dropdown with card IDs
+  if (cards) {
+    for (const card of cards) {
+      const option = document.createElement('option');
+      option.value = card.card_id;
+      option.textContent = `card-${card.card_id}`;
+      existingCardDropdown.appendChild(option);
+    }
   }
 }
 
@@ -348,12 +359,11 @@ const sectionMapping = {
   'done': 3
 };
 
-// Function to update the UI with cards
+// Update the UI with fetched cards
 async function updateUICards() {
   try {
     const data = await fetchAllCards();
     let cards = data.cards;
-
 
     const kanbanColumns = document.querySelectorAll('.kanban-column');
     kanbanColumns.forEach(column => {
@@ -368,8 +378,12 @@ async function updateUICards() {
       sectionCards.forEach(card => {
         const cardElement = createCardElement(card);
         cardContainer.appendChild(cardElement);
+        cardElements[card.card_id] = cardElement; // Store card element in cardElements
       });
     });
+
+    // Populate the "Select an Existing Card" dropdown
+    populateCardDropdown(cards);
   } catch (error) {
     console.error('Error updating UI with cards:', error);
   }
@@ -377,13 +391,15 @@ async function updateUICards() {
 
 // Create a card element
 function createCardElement(card) {
-
   const cardElement = document.createElement('div');
   cardElement.classList.add('kanban-task');
   cardElement.setAttribute('draggable', 'true');
   cardElement.innerHTML = `
-    <div class="kanban-task-id">${card.card_id}</div>
-    <div class="kanban-task-title">${card.title}</div>
+    <div class="kanban-task-id">card-${card.card_id}</div>
+    <div class="kanban-task-title">
+          <p>Title:</p>
+          <p>${card.title}</p>
+          </div>
     <div class="kanban-task-description">
       <p>Description:</p>
       <p>${card.description}</p>
@@ -393,6 +409,7 @@ function createCardElement(card) {
   cardElement.addEventListener('dragend', dragEnd);
   return cardElement;
 }
+
 
 // Populate the card dropdown with existing cards
 populateCardDropdown();
