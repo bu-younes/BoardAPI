@@ -1,87 +1,18 @@
+// Fetch all cards from the server
 async function fetchAllCards() {
   const boardId = 1; // Replace with your actual board ID
   const response = await fetch(`http://localhost:8080/api/boards/${boardId}/cards`);
+
   if (response.ok) {
     const cards = await response.json();
-
-
-
-
-      /*for (const createdCard in cards) {
-          console.log("here12");
-          console.log(cards);
-      const card = document.createElement('div');
-                                       card.classList.add('kanban-task');
-                                       card.setAttribute('draggable', 'true');
-                                       card.innerHTML = `
-                                         <div class="kanban-task-id">${createdCard.card_id}</div>
-                                         <div class="kanban-task-title">${createdCard.title}</div>
-                                         <div class="kanban-task-description">
-                                           <p>Description:</p>
-                                           <p>${createdCard.description}</p>
-                                         </div>
-                                       `;
-
-                                       const column = document.querySelector(`.kanban-column.section-1`);
-                                       if (column) {
-                                         column.appendChild(card);
-                                         card.addEventListener('dragstart', dragStart);
-                                         card.addEventListener('dragend', dragEnd);
-                                       }
-
-                                       // Add card element to cardElements object
-                                       cardElements[createdCard.card_id] = card;
-
-                                       // Clear input fields
-                                       document.getElementById('cardTitle').value = '';
-                                       document.getElementById('cardDescription').value = '';
-
-                                       // Add card ID to dropdown
-                                       const existingCardDropdown = document.getElementById('existingCard');
-                                       const newOption = document.createElement('option');
-                                       newOption.value = createdCard.card_id;
-                                       newOption.textContent = createdCard.card_id;
-                                       existingCardDropdown.appendChild(newOption);
-
-                                       populateCardDropdown();
-      }*/
     return cards;
   } else {
     throw new Error('Failed to fetch cards');
   }
 }
 
-
-
-async function updateUICards() {
-console.log("UI new here");
-  try {
-    const cards = await fetchAllCards();
-
-    const kanbanColumns = document.querySelectorAll('.kanban-column');
-    console.log(kanbanColumns);
-    kanbanColumns.forEach(column => {
-      const sectionId = column.getAttribute('id');
-      console.log(sectionId);
-      const sectionCards = cards.filter(card => card.section === parseInt(sectionId));
-      
-      const cardContainer = column.querySelector('.kanban-card-container');
-      cardContainer.innerHTML = ''; // Clear existing cards
-      
-      sectionCards.forEach(card => {
-        const cardElement = createCardElement(card);
-        cardContainer.appendChild(cardElement);
-      });
-    });
-  } catch (error) {
-    console.error('Error updating UI with cards:', error);
-  }
-}
-
-
-
+// Create a card element
 function createCardElement(card) {
-console.log(card + "Card is here")
   const cardElement = document.createElement('div');
   cardElement.classList.add('kanban-task');
   cardElement.setAttribute('draggable', 'true');
@@ -98,12 +29,33 @@ console.log(card + "Card is here")
   return cardElement;
 }
 
+// Update the UI with fetched cards
+async function updateUICards() {
+  try {
+    const cards = await fetchAllCards();
+    const kanbanColumns = document.querySelectorAll('.kanban-column');
+
+    kanbanColumns.forEach(column => {
+      const sectionId = column.getAttribute('id');
+      const sectionCards = cards.filter(card => card.section === parseInt(sectionId));
+      const cardContainer = column.querySelector('.kanban-card-container');
+      cardContainer.innerHTML = ''; // Clear existing cards
+
+      sectionCards.forEach(card => {
+        const cardElement = createCardElement(card);
+        cardContainer.appendChild(cardElement);
+      });
+    });
+
+    // Populate the "Select an Existing Card" dropdown
+    populateCardDropdown(cards);
+  } catch (error) {
+    console.error('Error updating UI with cards:', error);
+  }
+}
 
 
-
-
-
-// Function to update the board name
+// Update the board name
 function updateBoardName() {
   const boardId = 1;
   const newTitle = document.getElementById("newTitle").value.trim();
@@ -129,7 +81,6 @@ function updateBoardName() {
     });
   }
 }
-
 
 
 
@@ -172,12 +123,13 @@ let cardIdCounter = 1;
 let boardId = 1;
 
 function createCard() {
-console.log("In create card");
+  console.log("In create card");
+
   const cardTitle = document.getElementById('cardTitle').value;
   const cardDescription = document.getElementById('cardDescription').value;
   const cardSection = document.getElementById('cardSection').value;
-
   const createButton = document.querySelector('.create-button');
+
   createButton.disabled = true; // Disable the button
 
   if (cardTitle.trim() !== "") {
@@ -214,7 +166,7 @@ console.log("In create card");
           <p>${createdCard.description}</p>
         </div>
       `;
-      
+
       const column = document.querySelector(`.kanban-column.section-${cardSection}`);
       if (column) {
         column.appendChild(card);
@@ -249,14 +201,7 @@ console.log("In create card");
   }
 }
 
-
-
-
-
-
-
-
-
+// Delete the selected card
 function deleteSelectedCard() {
   const existingCardDropdown = document.getElementById('existingCard');
   const selectedCardId = existingCardDropdown.value;
@@ -276,30 +221,27 @@ function deleteSelectedCard() {
       'Content-Type': 'application/json',
     },
   })
-    .then((response) => {
-      if (response.ok) {
-        // Remove the card element from the UI
-        const cardToRemove = cardElements[selectedCardId];
-        if (cardToRemove) {
-          cardToRemove.remove();
-          delete cardElements[selectedCardId];
-          existingCardDropdown.removeChild(
-            existingCardDropdown.querySelector(`[value="${selectedCardId}"]`)
-          );
-        }
-      } else {
-        console.error('Failed to delete card:', response.status);
+  .then(response => {
+    if (response.ok) {
+      // Remove the card element from the UI
+      const cardToRemove = cardElements[selectedCardId];
+      if (cardToRemove) {
+        cardToRemove.remove();
+        delete cardElements[selectedCardId];
+        existingCardDropdown.removeChild(existingCardDropdown.querySelector(`[value="${selectedCardId}"]`));
       }
-    })
-    .catch((error) => {
-      console.error('Error deleting card:', error);
-    });
+    } else {
+      console.error('Failed to delete card:', response.status);
+    }
+  })
+  .catch(error => {
+    console.error('Error deleting card:', error);
+  });
 }
 
-
+// Populate card dropdown with existing cards
 function populateCardDropdown() {
   const existingCardDropdown = document.getElementById('existingCardToUpdate');
-
   existingCardDropdown.innerHTML = '';
 
   for (const cardId in cardElements) {
@@ -311,22 +253,12 @@ function populateCardDropdown() {
 }
 
 
-
-
-
+// Update the selected card
 function updateSelectedCard() {
   const selectedCardId = document.getElementById('existingCardToUpdate').value;
-  console.log('Selected Card ID:', selectedCardId);
-
   const newTitle = document.getElementById('newControlTitle').value;
-  console.log('New Title:', newTitle);
-
   const newDescription = document.getElementById('newControlDescription').value;
-  console.log('New Description:', newDescription);
-
-  const newSection = parseInt(document.getElementById('cardSection').value);
-  console.log('New Section:', newSection);
-
+  const newSection = parseInt(document.getElementById('cardSectionn').value); // Note the change in ID here
   const requestBody = {
     title: newTitle,
     description: newDescription,
@@ -342,40 +274,42 @@ function updateSelectedCard() {
     },
     body: JSON.stringify(requestBody)
   })
-    .then(response => {
-      if (response.ok) {
-        const cardToUpdate = cardElements[selectedCardId];
-        if (cardToUpdate) {
-          const titleElement = cardToUpdate.querySelector('.kanban-task-title');
-          const descriptionElement = cardToUpdate.querySelector('.kanban-task-description p:nth-child(2)');
-          const sectionElement = cardToUpdate.querySelector('.kanban-task-section'); // Assuming this is the element you want to update
+  .then(response => {
+    if (response.ok) {
+      const cardToUpdate = cardElements[selectedCardId];
+      if (cardToUpdate) {
+        const titleElement = cardToUpdate.querySelector('.kanban-task-title');
+        const descriptionElement = cardToUpdate.querySelector('.kanban-task-description p:nth-child(2)');
+        const sectionElement = cardToUpdate.querySelector('.kanban-task-section'); // Assuming this is the element you want to update
 
-          if (sectionElement) {
-            sectionElement.textContent = `Section: ${newSection}`;
-          }
-
-          titleElement.textContent = newTitle;
-          descriptionElement.textContent = newDescription;
+        if (sectionElement) {
+          sectionElement.textContent = `Section: ${newSection}`;
         }
 
-        // Clear input fields
-        document.getElementById('newControlTitle').value = '';
-        document.getElementById('newControlDescription').value = '';
-
-        // Refresh the dropdown options
-        populateCardDropdown();
-      } else {
-        console.error('Failed to update card:', response.status);
+        titleElement.textContent = newTitle;
+        descriptionElement.textContent = newDescription;
       }
-    })
-    .catch(error => {
-      console.error('Error updating card:', error);
-    });
+
+      // Move the card to the selected section by finding the appropriate container
+      const targetSection = document.querySelector(`.kanban-column.section-${newSection}`);
+      if (targetSection) {
+        targetSection.querySelector('.kanban-card-container').appendChild(cardToUpdate);
+      }
+
+      // Clear input fields
+      document.getElementById('newControlTitle').value = '';
+      document.getElementById('newControlDescription').value = '';
+
+      // Refresh the dropdown options
+      populateCardDropdown();
+    } else {
+      console.error('Failed to update card:', response.status);
+    }
+  })
+  .catch(error => {
+    console.error('Error updating card:', error);
+  });
 }
-
-
-
-
 
 
 // Initialize event listeners when the window loads
@@ -395,93 +329,71 @@ window.onload = function() {
     column.addEventListener('dragleave', dragLeave);
     column.addEventListener('drop', drop);
   });
+}
 
-/*  async function fetchAllCards() {
-    const boardId = 1; // Replace with your actual board ID
-    const response = await fetch(`http://localhost:8080/api/boards/${boardId}/cards`);
-    if (response.ok) {
-      const cards = await response.json();
-      console.log('Fetched cards:', cards); // Add this line
-      return cards;
-    } else {
-      throw new Error('Failed to fetch cards');
-    }
-  }*/
-  
-
-  async function updateUICards() {
-    try {
-      const data = await fetchAllCards();
-      console.log("now here");
-         const sectionMapping = {
-            'todo': 1,
-            'in-progress': 2,
-            'done': 3
-          };
-  
-      let cards = data.cards;
-/*      if (Array.isArray(data)) {
-        // If the response is an array (expected format)
-        cards = data;
-      } else if (data.cards && Array.isArray(data.cards)) {
-        // If the response is an object with a 'cards' array
-
-      } else {
-        throw new Error('Invalid API response format');
-      }*/
-
-  console.log("data.cards");
-  console.log(cards);
-      const kanbanColumns = document.querySelectorAll('.kanban-column');
-      kanbanColumns.forEach(column => {
-        const sectionId = column.getAttribute('id');
-         const sectionValue = sectionMapping[sectionId];
-        console.log("section Id" + sectionId);
-        const sectionCards = cards.filter(card => card.section === sectionValue);
-        console.log("line 434");
-        
-        const cardContainer = column.querySelector('.kanban-card-container');
-        cardContainer.innerHTML = ''; // Clear existing cards
-        
-        sectionCards.forEach(card => {
-                console.log("line 440");
-
-          const cardElement = createCardElement(card);
-          cardContainer.appendChild(cardElement);
-        });
-      });
-    } catch (error) {
-      console.error('Error updating UI with cards:', error);
-    }
-  }
-  
-
-  
-  function createCardElement(card) {
-  console.log(card + "Card is here line 451")
-
-    const cardElement = document.createElement('div');
-    cardElement.classList.add('kanban-task');
-    cardElement.setAttribute('draggable', 'true');
-    cardElement.innerHTML = `
-      <div class="kanban-task-id">${card.card_id}</div>
-      <div class="kanban-task-title">${card.title}</div>
-      <div class="kanban-task-description">
-        <p>Description:</p>
-        <p>${card.description}</p>
-      </div>
-    `;
-    cardElement.addEventListener('dragstart', dragStart);
-    cardElement.addEventListener('dragend', dragEnd);
-    return cardElement;
-  }
-  
-
-
-  // Populate the card dropdown with existing cards
-  populateCardDropdown();
-  
-  // ... Other code you had ...
-  updateUICards(); // Fetch and update card data on page load
+// Map section IDs to their corresponding values
+const sectionMapping = {
+  'todo': 1,
+  'in-progress': 2,
+  'done': 3
 };
 
+// Function to update the UI with cards
+async function updateUICards() {
+  try {
+    const data = await fetchAllCards();
+    console.log("now here");
+    let cards = data.cards;
+
+    console.log("data.cards");
+    console.log(cards);
+
+    const kanbanColumns = document.querySelectorAll('.kanban-column');
+    kanbanColumns.forEach(column => {
+      const sectionId = column.getAttribute('id');
+      const sectionValue = sectionMapping[sectionId];
+      console.log("section Id" + sectionId);
+
+      const sectionCards = cards.filter(card => card.section === sectionValue);
+      console.log("line 434");
+
+      const cardContainer = column.querySelector('.kanban-card-container');
+      cardContainer.innerHTML = ''; // Clear existing cards
+
+      sectionCards.forEach(card => {
+        console.log("line 440");
+        const cardElement = createCardElement(card);
+        cardContainer.appendChild(cardElement);
+      });
+    });
+  } catch (error) {
+    console.error('Error updating UI with cards:', error);
+  }
+}
+
+// Create a card element
+function createCardElement(card) {
+  console.log(card + "Card is here line 451")
+
+  const cardElement = document.createElement('div');
+  cardElement.classList.add('kanban-task');
+  cardElement.setAttribute('draggable', 'true');
+  cardElement.innerHTML = `
+    <div class="kanban-task-id">${card.card_id}</div>
+    <div class="kanban-task-title">${card.title}</div>
+    <div class="kanban-task-description">
+      <p>Description:</p>
+      <p>${card.description}</p>
+    </div>
+  `;
+  cardElement.addEventListener('dragstart', dragStart);
+  cardElement.addEventListener('dragend', dragEnd);
+  return cardElement;
+}
+
+// Populate the card dropdown with existing cards
+populateCardDropdown();
+
+
+// Fetch and update card data on page load
+updateUICards();

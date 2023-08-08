@@ -192,7 +192,7 @@
           </select>
         </div>
         <button class="create-button" onclick="deleteSelectedCard()">Delete</button>
-      </div> 
+      </div>
 
 
         <div class="control-panel">
@@ -210,8 +210,17 @@
               <!-- JavaScript will populate this dropdown -->
             </select>
           </div>
+          <div class="input-container">
+            <label class="input-label">Select Section:</label>
+            <select class="input-dropdown" id="cardSectionn">
+              <option  value="1">To Do</option>
+              <option  value="2">In Progress</option>
+              <option value="3">Done</option>
+            </select>
+          </div>
+
           <button class="create-button" onclick="updateSelectedCard()">Update</button>
-      </div> 
+      </div>
 
   </div>
   <script src="BoardAPI.js"></script>
