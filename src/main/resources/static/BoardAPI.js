@@ -239,6 +239,8 @@ function deleteSelectedCard() {
   });
 }
 
+
+
 // Populate card dropdown with existing cards
 function populateCardDropdown() {
   const existingCardDropdown = document.getElementById('existingCardToUpdate');
@@ -329,7 +331,15 @@ window.onload = function() {
     column.addEventListener('dragleave', dragLeave);
     column.addEventListener('drop', drop);
   });
+
+  // Populate the "Select an Existing Card" dropdown initially
+  populateCardDropdown();
+
+  // Fetch and update card data on page load
+  updateUICards();
 }
+
+
 
 // Map section IDs to their corresponding values
 const sectionMapping = {
@@ -342,26 +352,20 @@ const sectionMapping = {
 async function updateUICards() {
   try {
     const data = await fetchAllCards();
-    console.log("now here");
     let cards = data.cards;
 
-    console.log("data.cards");
-    console.log(cards);
 
     const kanbanColumns = document.querySelectorAll('.kanban-column');
     kanbanColumns.forEach(column => {
       const sectionId = column.getAttribute('id');
       const sectionValue = sectionMapping[sectionId];
-      console.log("section Id" + sectionId);
 
       const sectionCards = cards.filter(card => card.section === sectionValue);
-      console.log("line 434");
 
       const cardContainer = column.querySelector('.kanban-card-container');
       cardContainer.innerHTML = ''; // Clear existing cards
 
       sectionCards.forEach(card => {
-        console.log("line 440");
         const cardElement = createCardElement(card);
         cardContainer.appendChild(cardElement);
       });
@@ -373,7 +377,6 @@ async function updateUICards() {
 
 // Create a card element
 function createCardElement(card) {
-  console.log(card + "Card is here line 451")
 
   const cardElement = document.createElement('div');
   cardElement.classList.add('kanban-task');
