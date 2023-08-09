@@ -57,7 +57,6 @@ public class CardService {
         if (request.getSection() != null) {
             card.setSectionId(request.getSection());
         }
-
         return cardRepository.save(card);
     }
 
