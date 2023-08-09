@@ -427,7 +427,7 @@ function createCardElement(card) {
   return cardElement;
 }
 
-
+//
 // Populate the card dropdown with existing cards
 populateCardDropdown();
 
