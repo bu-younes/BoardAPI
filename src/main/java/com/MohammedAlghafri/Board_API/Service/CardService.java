@@ -45,13 +45,22 @@ public class CardService {
             return null;
         }
 
-        card.setTitle(request.getTitle());
-        card.setDescription(request.getDescription());
-        card.setSectionId(request.getSection());
+        // Update only if the corresponding values in the request are not empty or null
+        if (request.getTitle() != null && !request.getTitle().isEmpty()) {
+            card.setTitle(request.getTitle());
+        }
 
+        if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+            card.setDescription(request.getDescription());
+        }
+
+        if (request.getSection() != null) {
+            card.setSectionId(request.getSection());
+        }
 
         return cardRepository.save(card);
     }
+
 
     public boolean deleteCard(Long boardId, Long cardId) {
         Card cardToDelete = cardRepository.findByIdAndBoardId(cardId, boardId);

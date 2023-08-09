@@ -82,6 +82,23 @@ function updateBoardName() {
   }
 }
 
+// Fetch the initial board title and populate it
+function fetchInitialBoardTitle() {
+  const boardId = 1; // Adjust the board ID as needed
+  fetch(`http://localhost:8080/api/boards/${boardId}`)
+    .then(response => response.json())
+    .then(board => {
+      document.getElementById("title").textContent = `Title: ${board.name}`;
+    })
+    .catch(error => {
+      console.error("Error fetching initial board title:", error);
+    });
+}
+
+// Call the function to fetch and populate the initial board title
+fetchInitialBoardTitle();
+
+
 
 
 // Drag-and-drop functionality
@@ -167,6 +184,8 @@ function createCard() {
           <p>${createdCard.description}</p>
         </div>
       `;
+        // Auto-refresh the page after updating the card
+        window.location.reload();
 
       const column = document.querySelector(`.kanban-column.section-${cardSection}`);
       if (column) {
@@ -231,6 +250,9 @@ function deleteSelectedCard() {
         delete cardElements[selectedCardId];
         existingCardDropdown.removeChild(existingCardDropdown.querySelector(`[value="${selectedCardId}"]`));
       }
+      
+      // Auto-refresh the page after updating the card
+      window.location.reload();
     } else {
       console.error('Failed to delete card:', response.status);
     }
@@ -242,30 +264,37 @@ function deleteSelectedCard() {
 
 
 
-// Populate card dropdown with existing cards
 function populateCardDropdown(cards) {
   const existingCardDropdown = document.getElementById('existingCard');
   const existingCardToUpdateDropdown = document.getElementById('existingCardToUpdate');
+  
   existingCardDropdown.innerHTML = '';
-
+  existingCardToUpdateDropdown.innerHTML = ''; // Clear the dropdown content
+  
   for (const cardId in cardElements) {
-    const option = document.createElement('option');
-    option.value = cardId;
-    option.textContent = `card-${cardId}`;
-    existingCardDropdown.appendChild(option);
-    existingCardToUpdateDropdown.appendChild(option);
+    const option1 = document.createElement('option'); // Create a new option element
+    option1.value = cardId;
+    option1.textContent = `card-${cardId}`;
+    existingCardDropdown.appendChild(option1);
+
+    const option2 = document.createElement('option'); // Create a new option element
+    option2.value = cardId;
+    option2.textContent = `card-${cardId}`;
+    existingCardToUpdateDropdown.appendChild(option2);
   }
 
   // If cards parameter is provided, populate the dropdown with card IDs
-  if (cards) {
-    for (const card of cards) {
-      const option = document.createElement('option');
-      option.value = card.card_id;
-      option.textContent = `card-${card.card_id}`;
-      existingCardDropdown.appendChild(option);
-    }
-  }
+  //if (cards) {
+ //   for (const card of cards) {
+   //   const option = document.createElement('option');
+    //  option.value = card.card_id;
+    //  option.textContent = `card-${card.card_id}`;
+     // existingCardDropdown.appendChild(option);
+   // }
+ // }
 }
+
+
 
 
 // Update the selected card
@@ -273,7 +302,7 @@ function updateSelectedCard() {
   const selectedCardId = document.getElementById('existingCardToUpdate').value;
   const newTitle = document.getElementById('newControlTitle').value;
   const newDescription = document.getElementById('newControlDescription').value;
-  const newSection = parseInt(document.getElementById('cardSectionn').value); // Note the change in ID here
+  const newSection = parseInt(document.getElementById('cardSectionn').value);
   const requestBody = {
     title: newTitle,
     description: newDescription,
@@ -291,25 +320,7 @@ function updateSelectedCard() {
   })
   .then(response => {
     if (response.ok) {
-      const cardToUpdate = cardElements[selectedCardId];
-      if (cardToUpdate) {
-        const titleElement = cardToUpdate.querySelector('.kanban-task-title');
-        const descriptionElement = cardToUpdate.querySelector('.kanban-task-description p:nth-child(2)');
-        const sectionElement = cardToUpdate.querySelector('.kanban-task-section'); // Assuming this is the element you want to update
-
-        if (sectionElement) {
-          sectionElement.textContent = `Section: ${newSection}`;
-        }
-
-        titleElement.textContent = newTitle;
-        descriptionElement.textContent = newDescription;
-      }
-
-      // Move the card to the selected section by finding the appropriate container
-      const targetSection = document.querySelector(`.kanban-column.section-${newSection}`);
-      if (targetSection) {
-        targetSection.querySelector('.kanban-card-container').appendChild(cardToUpdate);
-      }
+      // Update card details and move card to new section as before
 
       // Clear input fields
       document.getElementById('newControlTitle').value = '';
@@ -317,6 +328,9 @@ function updateSelectedCard() {
 
       // Refresh the dropdown options
       populateCardDropdown();
+
+      // Auto-refresh the page after updating the card
+      window.location.reload();
     } else {
       console.error('Failed to update card:', response.status);
     }
@@ -325,6 +339,7 @@ function updateSelectedCard() {
     console.error('Error updating card:', error);
   });
 }
+
 
 
 // Initialize event listeners when the window loads
