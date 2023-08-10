@@ -131,7 +131,52 @@ function drop() {
   this.appendChild(draggedTask);
 }
 
+// Drop function for drag-and-drop
+function drop(event) {
+  event.preventDefault();
+  this.classList.remove('highlighted');
+  this.appendChild(draggedTask);
 
+  // Update card section on the server
+  const cardId = draggedTask.querySelector('.kanban-task-id').textContent.split('-')[1]; // Extract card ID
+  const newSectionId = this.getAttribute('id');
+
+  updateCardSectionOnServer(cardId, newSectionId)
+    .then(() => {
+      // Update the UI after successful server update
+      updateUICards();
+      window.location.reload(); // Reload the page
+    })
+    .catch(error => {
+      console.error('Error updating card section:', error);
+      // Handle error if needed
+    });
+}
+
+// Function to update card section on the server
+async function updateCardSectionOnServer(cardId, newSectionId) {
+  const boardId = 1; // Replace with your actual board ID
+
+  const requestBody = {
+    section: sectionMapping[newSectionId] // Convert section ID to section value
+  };
+
+  try {
+    const response = await fetch(`http://localhost:8080/api/boards/${boardId}/cards/${cardId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update card section');
+    }
+  } catch (error) {
+    throw new Error('Error updating card section: ' + error.message);
+  }
+}
 
 
 // Card creation and management
