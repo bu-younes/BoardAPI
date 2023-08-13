@@ -1,27 +1,35 @@
-version: '3'
+version: "3"
 services:
-  gdb:
-    image: mysql:8.0.33
+  db:
+    image: mysql
     ports:
-      - "9090:3306"
+      - "9000:9000"
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_TCP_PORT: 9000
       MYSQL_DATABASE: boardapi
-      MYSQL_TCP_PORT: 3306
-    restart: on-failure
-  gapi:
+    restart: unless-stopped
+  api:
     build: .
+    image: tttapi
     ports:
       - "8080:8080"
+    volumes:
+      - ./cont_logs:/app/logs
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url": "jdbc:mysql://db:9000/thedynamicdoersdb?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true",
+        "spring.datasource.password": "root"
+      }'
     restart: on-failure
     depends_on:
-      - gdb
-  gui:
+      - db
+  ui:
     image: nginx
     ports:
       - "80:80"
     volumes:
-      -  ./src/main/resources/static:/usr/share/nginx/html
-    restart: on-failure
+      - ./src/main/resources/static:/usr/share/nginx/html
     depends_on:
-      - gapi
+      - api
+    restart: unless-stopped
