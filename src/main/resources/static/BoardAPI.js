@@ -1,7 +1,10 @@
+
+let hostname = window.location.hostname;
+const base_url = "http://"+hostname+":8080";
 // Fetch all cards from the server
 async function fetchAllCards() {
   const boardId = 1; // Replace with your actual board ID
-  const response = await fetch(`http://192.168.100.209:8080/api/boards/${boardId}/cards`);
+  const response = await fetch(base_url+`/api/boards/${boardId}/cards`);
 
   if (response.ok) {
     const cards = await response.json();
@@ -65,7 +68,7 @@ function updateBoardName() {
       name: newTitle
     };
 
-    fetch(`http://192.168.100.209:8080/api/boards/${boardId}`, {
+    fetch(base_url+`/api/boards/${boardId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -85,7 +88,7 @@ function updateBoardName() {
 // Fetch the initial board title and populate it
 function fetchInitialBoardTitle() {
   const boardId = 1; // Adjust the board ID as needed
-  fetch(`http://192.168.100.209:8080/api/boards/${boardId}`)
+  fetch(base_url+`/api/boards/${boardId}`)
     .then(response => response.json())
     .then(board => {
       document.getElementById("title").textContent = `Title: ${board.name}`;
@@ -162,7 +165,7 @@ async function updateCardSectionOnServer(cardId, newSectionId) {
   };
 
   try {
-    const response = await fetch(`http://192.168.100.209:8080/api/boards/${boardId}/cards/${cardId}`, {
+    const response = await fetch(base_url+`/api/boards/${boardId}/cards/${cardId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -199,7 +202,7 @@ function createCard() {
       section: cardSection
     };
 
-    fetch(`http://192.168.100.209:8080/api/boards/${boardId}/cards`, {
+    fetch(base_url+`/api/boards/${boardId}/cards`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -280,7 +283,7 @@ function deleteSelectedCard() {
   const boardId = 1; // Replace with the actual board ID
 
   // Send a DELETE request to the API
-  fetch(`http://192.168.100.209:8080/api/boards/${boardId}/cards/${selectedCardId}`, {
+  fetch(base_url+`/api/boards/${boardId}/cards/${selectedCardId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -356,7 +359,7 @@ function updateSelectedCard() {
 
   const boardId = 1;
 
-  fetch(`http://192.168.100.209:8080/api/boards/${boardId}/cards/${selectedCardId}`, {
+  fetch(base_url+`/api/boards/${boardId}/cards/${selectedCardId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
